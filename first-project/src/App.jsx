@@ -1,20 +1,36 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import axios from 'axios';
 import Login from './components/Login';
 import Home from './components/Home';
 import AppLayout from './components/AppLayout';
 import Dashboard from './pages/Dashboard';
+import Logout from './pages/Logout';
 
 function App() {
 
-  const {userDetails, setUserDetails}=useState(null);
+  const [userDetails, setUserDetails]=useState(null);
 
   const updateUserDetails=(updatedData)=>{
     setUserDetails(updatedData);
   };
+
+  const isUserLoggedIn=async()=>{
+    try{
+    const response=await axios.post('http://localhost:5000/auth/is-user-logged-in',{},{
+      withCredentials:true
+    });
+    updateUserDetails(response.data.userDetails);
+  }catch(error){
+    console.error('User not loggedin',error);
+  }
+};
+  useEffect(()=>{
+    isUserLoggedIn();
+  },[]);
 
   return (
       <Routes>
@@ -31,8 +47,17 @@ function App() {
           </AppLayout>
         }/>
         <Route path="/dashboard" element={userDetails?
-        <Dashboard/>:
+        <Dashboard updateUserDetails={updateUserDetails}/>:
         <Navigate to='/login'/>
+        }/>
+        <Route path='/logout' element={userDetails?
+          <Logout updateUserDetails={updateUserDetails}
+          />:
+          <Navigate to="/login"/>
+        }/>
+        <Route path='/error' element={userDetails?
+          <Error/>:
+          <AppLayout><Error/></AppLayout>
         }/>
       </Routes>
   )
