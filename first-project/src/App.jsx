@@ -9,6 +9,7 @@ import Home from './components/Home';
 import AppLayout from './components/AppLayout';
 import Dashboard from './pages/Dashboard';
 import Logout from './pages/Logout';
+import Register from './components/Register';
 
 function App() {
 
@@ -47,7 +48,7 @@ function App() {
           </AppLayout>
         }/>
         <Route path="/dashboard" element={userDetails?
-        <Dashboard updateUserDetails={updateUserDetails}/>:
+        <Dashboard updateUserDetails={userDetails}/>:
         <Navigate to='/login'/>
         }/>
         <Route path='/logout' element={userDetails?
@@ -59,6 +60,7 @@ function App() {
           <Error/>:
           <AppLayout><Error/></AppLayout>
         }/>
+        <Route path="/register" element={<AppLayout><Register/></AppLayout>} />
       </Routes>
   )
 }
