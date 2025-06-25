@@ -1,21 +1,22 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import { serverEndpoint } from "../config";
+import { useDispatch } from "react-redux";
 
-function Login({ updateUserDetails }) {
+function Login() {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
   });
 
   const [errors, setErrors] = useState({});
-  const [message, setMessage] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -53,7 +54,10 @@ function Login({ updateUserDetails }) {
           body,
           { withCredentials: true }
         );
-        updateUserDetails(response.data.userDetails);
+        dispatch({
+          type: "SET_USER",
+          payload: response.data.userDetails,
+        });
       } catch (error) {
         setErrors({
           message:
@@ -64,35 +68,43 @@ function Login({ updateUserDetails }) {
     }
   };
 
-  const handleGoogleSignin=async (authResponse)=>{
-    try{
-      const response= await axios.post('http://localhost:5000/auth/google-auth',{
-        idToken:authResponse.credential
-      },{
-        withCredentials:true
+  const handleGoogleSignin = async (authResponse) => {
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/auth/google-auth",
+        {
+          idToken: authResponse.credential,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+      dispatch({
+        type: "SET_USER",
+        payload: response.data.userDetails,
       });
-      updateUserDetails(response.data.userDetails);
-    }catch(error){
+    } catch (error) {
       console.log(error);
-      setErrors({message:'Something went wrong while google signin'});
+      setErrors({ message: "Something went wrong while google signin" });
     }
   };
-  
-  const handleGoogleSigninFailure=async(error)=>{
+
+  const handleGoogleSigninFailure = async (error) => {
     console.log(error);
-    setErrors({message:'Something went wrong while google signin'});
+    setErrors({ message: "Something went wrong while google signin" });
   };
 
   return (
-    <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
-      <div className="card shadow p-4" style={{ width: "100%", maxWidth: "450px" }}>
+    <div
+      className="container d-flex justify-content-center align-items-center"
+      style={{ minHeight: "100vh" }}
+    >
+      <div
+        className="card shadow p-4"
+        style={{ width: "100%", maxWidth: "450px" }}
+      >
         <h3 className="text-center mb-4">Login</h3>
 
-        {message && (
-          <div className="alert alert-success text-center" role="alert">
-            {message}
-          </div>
-        )}
         {errors.message && (
           <div className="alert alert-danger text-center" role="alert">
             {errors.message}
@@ -101,11 +113,13 @@ function Login({ updateUserDetails }) {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3 text-start">
-            <label htmlFor="username" className="form-label">Username</label>
+            <label htmlFor="username" className="form-label">
+              Username
+            </label>
             <input
               type="text"
               name="username"
-              className={`form-control ${errors.username ? 'is-invalid' : ''}`}
+              className={`form-control ${errors.username ? "is-invalid" : ""}`}
               id="username"
               value={formData.username}
               onChange={handleChange}
@@ -116,11 +130,13 @@ function Login({ updateUserDetails }) {
           </div>
 
           <div className="mb-3 text-start">
-            <label htmlFor="password" className="form-label">Password</label>
+            <label htmlFor="password" className="form-label">
+              Password
+            </label>
             <input
               type="password"
               name="password"
-              className={`form-control ${errors.password ? 'is-invalid' : ''}`}
+              className={`form-control ${errors.password ? "is-invalid" : ""}`}
               id="password"
               value={formData.password}
               onChange={handleChange}
@@ -131,13 +147,18 @@ function Login({ updateUserDetails }) {
           </div>
 
           <div className="d-grid mb-3">
-            <button type="submit" className="btn btn-primary">Login</button>
+            <button type="submit" className="btn btn-primary">
+              Login
+            </button>
           </div>
         </form>
-           <h6 className="text-center">OR</h6>
-            <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-              <GoogleLogin onSuccess={handleGoogleSignin} onError={handleGoogleSigninFailure}/>
-            </GoogleOAuthProvider>
+        <h6 className="text-center">OR</h6>
+        <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+          <GoogleLogin
+            onSuccess={handleGoogleSignin}
+            onError={handleGoogleSigninFailure}
+          />
+        </GoogleOAuthProvider>
         <div className="text-center">
           <p className="mb-0">
             Don't have an account?{" "}
@@ -152,7 +173,6 @@ function Login({ updateUserDetails }) {
 }
 
 export default Login;
-
 
 // import React, { useState } from "react";
 // import { useNavigate } from "react-router-dom";
