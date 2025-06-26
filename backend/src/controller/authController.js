@@ -3,10 +3,15 @@ const jwt = require('jsonwebtoken');
 const Users = require('../model/Users');
 const secret = "309b161a-5c19-4952-bef1-546829211287";
 const {OAuth2Client} = require('google-auth-library');
+const { validationResult } = require('express-validator');
 
 
 const authController = {
     login: async (request, response) => {
+        const errors=validationResult(request);
+        if(!errors.isEmpty){
+            return response.status(401).json({errors:errors.array()});
+        }
         //These values are here because of express.json() middleware
         try {
             const { username, password } = request.body;
@@ -26,7 +31,7 @@ const authController = {
                 name: data.name,
                 email: data.email
             };
-            const token = jwt.sign(userDetails, secret, { expiresIn: '1h' });
+            const token = jwt.sign(userDetails, process.env.JWT_SECRET, { expiresIn: '1h' });
 
             response.cookie('jwtToken', token, {
                 httpOnly: true,
@@ -53,7 +58,7 @@ const authController = {
             return response.status(401).json({ message: 'Unauthorized access' });
         }
 
-        jwt.verify(token, secret, (error, userDetails) => {
+        jwt.verify(token, process.env.JWT_SECRET, (error, userDetails) => {
             if (error) {
                 return response.status(401).json({ message: 'Unauthorized access' });
             } else {
@@ -119,7 +124,7 @@ const authController = {
                 name:name
             };
 
-            const token=jwt.sign(user,secret,{expiresIn:'1h'});
+            const token=jwt.sign(user,process.env.JWT_SECRET,{expiresIn:'1h'});
             response.cookie('jwtToken',token,{
                 httpOnly:true,
                 secure:true,

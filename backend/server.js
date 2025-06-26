@@ -4,6 +4,8 @@ const app = express(); //Instance of express appplication
 const cors=require('cors');
 
 const authRoutes=require('./src/routes/authRoutes');
+const linksRoutes = require('./src/routes/linksRoutes');
+
 const cookieParser = require('cookie-parser');
 const { default: mongoose } = require('mongoose');
 
@@ -23,6 +25,7 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/auth',authRoutes);
+app.use('/links',linksRoutes);
 
 const PORT=5000;
 
