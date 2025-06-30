@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Logout from "./pages/Logout";
 import Register from "./components/Register";
 import { useDispatch, useSelector } from "react-redux";
+import UserLayout from "./layout/UserLayout";
 
 function App() {
   // const [userDetails, setUserDetails]=useState(null);
@@ -52,9 +53,10 @@ function App() {
       <Route
         path="/"
         element={
-          userDetails ? (
-            <Navigate to="/dashboard" />
-          ) : (
+          userDetails ? 
+          <UserLayout>
+            <Navigate to='/dashboard'/>
+          </UserLayout>: (
             <AppLayout>
               <Home />
             </AppLayout>
@@ -76,9 +78,10 @@ function App() {
       <Route
         path="/dashboard"
         element={
-          userDetails ? (
+          userDetails ? 
+          <UserLayout>
             <Dashboard/>
-          ) : (
+          </UserLayout> : (
             <Navigate to="/login" />
           )
         }
@@ -96,9 +99,10 @@ function App() {
       <Route
         path="/error"
         element={
-          userDetails ? (
-            <Error />
-          ) : (
+          userDetails ? 
+          <UserLayout>
+            <Error/>
+          </UserLayout>: (
             <AppLayout>
               <Error />
             </AppLayout>
