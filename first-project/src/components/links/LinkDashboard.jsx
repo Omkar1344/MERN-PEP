@@ -12,15 +12,68 @@ import { Modal } from "react-bootstrap";
 function LinkDashboard() {
   const [errors, setErrors] = useState({});
   const [linksData, setLinksData] = useState([]);
-  const [formData, setFormData] = useState({});
-  const [showAddModal, setShowAddModal] = useState(false);
+  const [formData, setFormData] = useState({
+    campaignTitle:'',
+    originalUrl:'',
+    category:''
+    });
+//   const [showAddModal, setShowAddModal] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
 
-  const handleAddModalShow=()=>{
-    setShowAddModal(true);
+  const handleModalShow=(isEdit, data={})=>{
+    if(isEdit){
+        setFormData({
+            id: data._id,
+            campaignTitle:data.campaignTitle,
+            originalUrl:data.originalUrl,
+            category:data.category
+        });
+    }else{
+        setFormData({
+            campaignTitle:'',
+            originalUrl:'',
+            category:'',
+        });
+    }
+    setIsEdit(isEdit);
+    setShowModal(true);
+  };
+
+  const handleModalClose=()=>{
+    setShowModal(false);
   }
 
-  const handleAddModalClose=()=>{
-    setShowAddModal(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const handleDeleteModalShow = (linkId)=>{
+    setFormData({
+        id: linkId
+    });
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteModalClose=()=>{
+    setShowDeleteModal(false);
+  }
+
+  const handleDeleteSubmit = async()=>{
+    try{
+        await axios.delete(
+            `${serverEndpoint}/links/${formData.id}`,
+            {withCredentials:true}
+        );
+        setFormData({
+            campaignTitle:'',
+            originalUrl:'',
+            category:'',
+        });
+        fetchLinks();
+    }catch(error){
+        setErrors({message:"Something went wrong, please try again"})
+    }finally{
+        handleDeleteModalClose();
+    }
   }
 
   const fetchLinks = async () => {
@@ -72,7 +125,7 @@ function LinkDashboard() {
       return isValid;
     };
   
-    const handleAddSubmit = async (e) => {
+    const handleSubmit = async (e) => {
       e.preventDefault();
       
       if(validate()){
@@ -85,22 +138,40 @@ function LinkDashboard() {
             withCredentials: true
         };
         try{
-            const response = await axios.post(
+            if(isEdit){
+                await axios.put(`${serverEndpoint}/links/${formData.id}`,body,configuration);
+            }else{
+                await axios.post(
                 `${serverEndpoint}/links`,
                 body, configuration
-            );
+                );
+            }
+            setFormData({
+                campaignTitle: '',
+                originalUrl: '',
+                category: '',
+            });
             fetchLinks();
         }catch(error){
             setErrors({message:"Something went wrong, please try again"});
         }finally{
-            handleAddModalClose();
+            handleModalClose();
         }
       }
     };
 
   const columns = [
     { field: "campaignTitle", headerName: "Campaign", flex: 2 },
-    { field: "originalUrl", headerName: "URL", flex: 3 },
+    { field: "originalUrl", headerName: "URL", flex: 3,
+        renderCell:(params)=>(
+            <a href={`${serverEndpoint}/links/r/${params.row._id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            >
+                {params.row.originalUrl}
+            </a>
+        )
+    },
     { field: "category", headerName: "Category", flex: 2 },
     { field: "clickCount", headerName: "Clicks", flex: 1 },
     {
@@ -110,20 +181,22 @@ function LinkDashboard() {
       renderCell: (params) => (
         <>
           <IconButton>
-            <EditIcon />
+            <EditIcon onClick={()=>handleModalShow(true, params.row)}/>
           </IconButton>
           <IconButton>
-            <DeleteIcon />
+            <DeleteIcon onClick={()=>handleDeleteModalShow(params.row._id)}/>
           </IconButton>
         </>
       ),
     },
   ];
+
+
   return (
     <div className="container py-4">
       <div className="d-flex justify-content-between mb-3">
         <h2>Manage your Affiliate Links</h2>
-        <button className="btn btn-primary btn-sm" onClick={handleAddModalShow}>Add</button>
+        <button className="btn btn-primary btn-sm" onClick={handleModalShow}>Add</button>
       </div>
 
       {errors.message && (
@@ -150,12 +223,12 @@ function LinkDashboard() {
           }}
         />
       </div>
-      <Modal show={showAddModal} onHide={handleAddModalClose}>
+      <Modal show={showModal} onHide={handleModalClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Add Link</Modal.Title>
+          <Modal.Title>{isEdit ? (<>Edit Link</>):(<>Add Link</>)}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <form onSubmit={handleAddSubmit}>
+          <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="campaignTitle" className="form-label">
                 Campaign Title
@@ -220,6 +293,22 @@ function LinkDashboard() {
             </div>
           </form>
         </Modal.Body>
+      </Modal>
+      <Modal show={showDeleteModal} onHide={()=>setShowDeleteModal()}>
+        <Modal.Header closeButton>
+            <Modal.Title>Confirm Delete</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+            Are you sure you want to delete this link?
+        </Modal.Body>
+        <Modal.Footer>
+            <button className="btn btn-secondary" onClick={()=>setShowDeleteModal()}>
+                Cancel
+            </button>
+            <button className="btn btn-danger" onClick={handleDeleteSubmit}>
+                Delete
+            </button>
+        </Modal.Footer>
       </Modal>
     </div>
   );
