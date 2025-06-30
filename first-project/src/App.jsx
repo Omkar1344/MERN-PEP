@@ -12,10 +12,12 @@ import Logout from "./pages/Logout";
 import Register from "./components/Register";
 import { useDispatch, useSelector } from "react-redux";
 import UserLayout from "./layout/UserLayout";
+import { Spinner } from "react-bootstrap";
 
 function App() {
   // const [userDetails, setUserDetails]=useState(null);
   const userDetails = useSelector((state) => state.userDetails);
+  const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
 
   // const updateUserDetails = (updatedData) => {
@@ -42,11 +44,17 @@ function App() {
       });
     } catch (error) {
       console.error("User not loggedin", error);
+    }finally{
+      setLoading(false);
     }
   };
   useEffect(() => {
     isUserLoggedIn();
   }, []);
+
+  if(loading){
+    return <Spinner/>;
+  }
 
   return (
     <Routes>
