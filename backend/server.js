@@ -5,6 +5,7 @@ const cors=require('cors');
 
 const authRoutes=require('./src/routes/authRoutes');
 const linksRoutes = require('./src/routes/linksRoutes');
+const userRoutes = require("./src/routes/userRoutes")
 
 const cookieParser = require('cookie-parser');
 const { default: mongoose } = require('mongoose');
@@ -26,6 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/auth',authRoutes);
 app.use('/links',linksRoutes);
+app.use('/users',userRoutes);
 
 const PORT=5000;
 

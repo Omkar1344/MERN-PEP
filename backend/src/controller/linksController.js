@@ -8,7 +8,7 @@ const linksController={
                 campaignTitle: campaign_title,
                 originalUrl: original_url,
                 category: category,
-                user: request.user.id
+                user: request.user.role === 'admin'? request.user.id: request.user.adminId
             });
 
             await link.save();
@@ -24,8 +24,9 @@ const linksController={
 
     getAll:async(request,response)=>{
         try{
+            const userId = request.user.role === 'admin'? request.user.id:request.user.adminId;
             const links=await Links
-                    .find({user: request.user.id})
+                    .find({user: userId})
                     .sort({createdAt: -1});
             return response.json({data: links});
         }catch(error){
@@ -45,7 +46,9 @@ const linksController={
             if(!link){
                 return response.status(404).json({error:"Link does not exist with the given id"});
             }
-            if(link.user.toString() !== request.user.id){
+
+            const userId = request.user.role === 'admin'?request.user.id:request.user.adminId;
+            if(link.user.toString() !== userId){
                 return response.status(403).json({error:"Unauthorized access"})
             }
 
@@ -93,7 +96,8 @@ const linksController={
             if(!link){
                 return response.status(404).json({error:"Link does not exist with the given id"});
             }
-            if(link.user.toString() !== request.user.id){
+            const userId = request.user.role === 'admin'?request.user.id:request.user.adminId;
+            if(link.user.toString() !== userId){
                 return response.status(403).json({error:"Unauthorized access"})
             }
 
