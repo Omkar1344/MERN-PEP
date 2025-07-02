@@ -33,6 +33,6 @@ export const ROLE_PERMISSIONS={
     }
 };
 export const userPermissions = () => {
-    const user = useSelector=((state)=>state.userDetails);
+    const user = useSelector((state)=>state.userDetails);
     return ROLE_PERMISSIONS[user?.role]||{};
 };
