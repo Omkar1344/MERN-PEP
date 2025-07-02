@@ -24,4 +24,4 @@ const send = async(to, subject, body)=>{
     }
 };
 
-module.export={send};
+module.export={send};   

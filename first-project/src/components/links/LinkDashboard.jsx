@@ -6,6 +6,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { serverEndpoint } from "../../config";
 import axios from "axios";
 import { Modal } from "react-bootstrap";
+import { userPermissions } from "../../rbac/permissions";
 
 function LinkDashboard() {
   const [errors, setErrors] = useState({});
@@ -18,6 +19,7 @@ function LinkDashboard() {
   });
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const permission = userPermissions();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const fetchLinks = async () => {
@@ -162,12 +164,16 @@ function LinkDashboard() {
       flex: 1,
       renderCell: (params) => (
         <>
-          <IconButton onClick={() => handleModalShow(true, params.row)}>
-            <EditIcon />
+          {permission.canEditLink && (
+            <IconButton>
+            <EditIcon onClick={() => handleModalShow(true, params.row)}/>
           </IconButton>
-          <IconButton onClick={() => handleDeleteModalShow(params.row._id)}>
-            <DeleteIcon />
+          )}
+          {permission.canDeleteLink && (
+          <IconButton>
+            <DeleteIcon  onClick={() => handleDeleteModalShow(params.row._id)}/>
           </IconButton>
+          )}
         </>
       ),
     },
@@ -177,9 +183,11 @@ function LinkDashboard() {
     <div className="container py-4">
       <div className="d-flex justify-content-between mb-3">
         <h2>Manage your Affiliate Links</h2>
+        {permission.canCreateLink && (
         <button className="btn btn-primary btn-sm" onClick={() => handleModalShow(false)}>
           Add
         </button>
+        )}
       </div>
 
       {errors.message && <div className="alert alert-danger">{errors.message}</div>}

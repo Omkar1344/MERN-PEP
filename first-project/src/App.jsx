@@ -13,6 +13,9 @@ import Register from "./components/Register";
 import { useDispatch, useSelector } from "react-redux";
 import UserLayout from "./layout/UserLayout";
 import { Spinner } from "react-bootstrap";
+import ManageUsers from "./pages/users/ManageUser";
+import ProtectedRoute from "./rbac/ProtectedRoute";
+import UnauthorizedAccess from "./components/UnauthorizedAccess";
 
 function App() {
   // const [userDetails, setUserDetails]=useState(null);
@@ -94,6 +97,21 @@ function App() {
           )
         }
       />
+      <Route path="/users" element={userDetails ? 
+      <ProtectedRoute roles={['admin']}>
+        <UserLayout>
+          <ManageUsers/>
+        </UserLayout>
+        </ProtectedRoute>:
+        <Navigate to='/login'/>
+      }/>
+
+      <Route path='/unauthorized-access' element={userDetails?
+        <UserLayout>
+          <UnauthorizedAccess/>
+        </UserLayout>:
+        <Navigate to='/login'/>
+      }/>
       <Route
         path="/logout"
         element={

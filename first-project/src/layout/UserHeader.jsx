@@ -1,6 +1,8 @@
 import React from 'react'
 import {useSelector} from "react-redux";
 import { Link } from 'react-router-dom';
+import Can from '../rbac/Can';
+
 function UserHeader() {
     const userDetails = useSelector((state)=>state.userDetails);
   return (
@@ -35,6 +37,14 @@ function UserHeader() {
                         {userDetails?(userDetails.name):(<>Account</>)}
                         </Link>
                         <ul className='dropdown-menu dropdown-menu-end'>
+                            <Can permission='canViewUser'>
+                                <li>
+                                    <Link className='dropdown-item' to='/users'>
+                                        Manage Users
+                                    </Link>
+                                </li>
+                            </Can>
+                                <hr className='m-0'/>
                             <li>
                                 <Link className='dropdown-item' to="/logout">
                                     Logout

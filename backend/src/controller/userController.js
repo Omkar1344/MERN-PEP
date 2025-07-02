@@ -66,7 +66,7 @@ const userController = {
                 return response.status(400).json({message:'Invalid role'});
             }
 
-            const user =  await Users.find({_id: id, adminId: request.user.id});
+            const user =  await Users.findOne({_id: id, adminId: request.user.id});
 
             if(!user){
                 return response.status(404).json({message:'User does not exist'});
@@ -75,6 +75,7 @@ const userController = {
             if(name) user.name = name;
             if(role) user.role = role;
 
+            console.log(user);
             await user.save();
             response.json(user);
         }catch(error){
