@@ -16,6 +16,7 @@ import { Spinner } from "react-bootstrap";
 import ManageUsers from "./pages/users/ManageUser";
 import ProtectedRoute from "./rbac/ProtectedRoute";
 import UnauthorizedAccess from "./components/UnauthorizedAccess";
+import ManagePayments from "./pages/payments/ManagePayments";
 
 function App() {
   // const [userDetails, setUserDetails]=useState(null);
@@ -135,6 +136,16 @@ function App() {
           )
         }
       />
+      <Route
+        path="/manage-payment"
+        element={
+          userDetails ?
+          <UserLayout>
+            <ManagePayments/>
+          </UserLayout>:
+          <Navigate to='/login'/>
+        }
+        />
       <Route
         path="/register"
         element={

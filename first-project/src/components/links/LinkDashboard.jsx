@@ -29,7 +29,9 @@ function LinkDashboard() {
       });
       setLinksData(response.data.data);
     } catch (error) {
-      setErrors({ message: "Unable to fetch links at the moment, please try again" });
+      setErrors({
+        message: "Unable to fetch links at the moment, please try again",
+      });
     }
   };
 
@@ -134,9 +136,17 @@ function LinkDashboard() {
         });
       }
       fetchLinks();
-      handleModalClose();
     } catch (error) {
-      setErrors({ message: "Something went wrong, please try again" });
+      if (error.response?.data?.code === "INSUFFICIENT_FUNDS") {
+        setErrors({
+          message: `You do not have enough credits to perform this action.
+                        Add funds to your account using Manage Payment option`,
+        });
+      } else {
+        setErrors({ message: "Something went wrong, please try again" });
+      }
+    } finally {
+      handleModalClose();
     }
   };
 
@@ -166,13 +176,15 @@ function LinkDashboard() {
         <>
           {permission.canEditLink && (
             <IconButton>
-            <EditIcon onClick={() => handleModalShow(true, params.row)}/>
-          </IconButton>
+              <EditIcon onClick={() => handleModalShow(true, params.row)} />
+            </IconButton>
           )}
           {permission.canDeleteLink && (
-          <IconButton>
-            <DeleteIcon  onClick={() => handleDeleteModalShow(params.row._id)}/>
-          </IconButton>
+            <IconButton>
+              <DeleteIcon
+                onClick={() => handleDeleteModalShow(params.row._id)}
+              />
+            </IconButton>
           )}
         </>
       ),
@@ -184,13 +196,18 @@ function LinkDashboard() {
       <div className="d-flex justify-content-between mb-3">
         <h2>Manage your Affiliate Links</h2>
         {permission.canCreateLink && (
-        <button className="btn btn-primary btn-sm" onClick={() => handleModalShow(false)}>
-          Add
-        </button>
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={() => handleModalShow(false)}
+          >
+            Add
+          </button>
         )}
       </div>
 
-      {errors.message && <div className="alert alert-danger">{errors.message}</div>}
+      {errors.message && (
+        <div className="alert alert-danger">{errors.message}</div>
+      )}
 
       <div style={{ height: 500, width: "100%" }}>
         <DataGrid
@@ -223,11 +240,15 @@ function LinkDashboard() {
                 <input
                   type="text"
                   name={field}
-                  className={`form-control ${errors[field] ? "is-invalid" : ""}`}
+                  className={`form-control ${
+                    errors[field] ? "is-invalid" : ""
+                  }`}
                   value={formData[field]}
                   onChange={handleChange}
                 />
-                {errors[field] && <div className="invalid-feedback">{errors[field]}</div>}
+                {errors[field] && (
+                  <div className="invalid-feedback">{errors[field]}</div>
+                )}
               </div>
             ))}
             <div className="d-grid">
@@ -246,7 +267,10 @@ function LinkDashboard() {
         </Modal.Header>
         <Modal.Body>Are you sure you want to delete this link?</Modal.Body>
         <Modal.Footer>
-          <button className="btn btn-secondary" onClick={handleDeleteModalClose}>
+          <button
+            className="btn btn-secondary"
+            onClick={handleDeleteModalClose}
+          >
             Cancel
           </button>
           <button className="btn btn-danger" onClick={handleDeleteSubmit}>

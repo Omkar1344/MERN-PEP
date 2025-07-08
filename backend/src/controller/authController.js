@@ -31,7 +31,8 @@ const authController = {
                 name: data.name,
                 email: data.email,
                 role:data.role? data.role:'admin',
-                adminId: data.adminId
+                adminId: data.adminId,
+                credits:data.credits
             };
             const token = jwt.sign(userDetails, process.env.JWT_SECRET, { expiresIn: '1h' });
 
@@ -53,18 +54,19 @@ const authController = {
         response.json({ message: 'User logged out succesfully' });
     },
 
-    isUserLoggedIn: (request, response) => {
+    isUserLoggedIn: async(request, response) => {
         const token = request.cookies.jwtToken;
 
         if (!token) {
             return response.status(401).json({ message: 'Unauthorized access' });
         }
 
-        jwt.verify(token, process.env.JWT_SECRET, (error, userDetails) => {
+        jwt.verify(token, process.env.JWT_SECRET, async (error, userDetails) => {
             if (error) {
                 return response.status(401).json({ message: 'Unauthorized access' });
             } else {
-                return response.json({ userDetails: userDetails });
+                const data = await Users.findById({_id:userDetails.id});
+                return response.json({ userDetails: data });
             }
         });
     },
@@ -82,7 +84,8 @@ const authController = {
                 email:username,
                 password:encryptedPassword,
                 name:name,
-                role:'admin'
+                role:'admin',
+                credits:user.credits
             });
 
             await user.save();
@@ -126,7 +129,8 @@ const authController = {
                 id:data._id? data._id:googleId,
                 username:email,
                 name:name,
-                role: data.role? data.role:'admin'
+                role: data.role? data.role:'admin',
+                credits:data.credits
             };
 
             const token=jwt.sign(user,process.env.JWT_SECRET,{expiresIn:'1h'});
