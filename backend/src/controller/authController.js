@@ -34,7 +34,7 @@ const authController = {
                 adminId: data.adminId,
                 credits:data.credits
             };
-            const token = jwt.sign(userDetails, process.env.JWT_SECRET, { expiresIn: '1h' });
+            const token = jwt.sign(userDetails, process.env.JWT_SECRET, { expiresIn: '7d' });
 
             response.cookie('jwtToken', token, {
                 httpOnly: true,
@@ -133,7 +133,7 @@ const authController = {
                 credits:data.credits
             };
 
-            const token=jwt.sign(user,process.env.JWT_SECRET,{expiresIn:'1h'});
+            const token=jwt.sign(user,process.env.JWT_SECRET,{expiresIn:'7d'});
             response.cookie('jwtToken',token,{
                 httpOnly:true,
                 secure:true,

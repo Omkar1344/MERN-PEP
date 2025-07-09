@@ -197,7 +197,7 @@ const paymentController = {
                 return response.status(400).send('USerId does not exist');
             }
 
-            console.log(`Updated subscription for user ${user,username} to ${newStatus}`);
+            console.log(`Updated subscription for user ${user.username} to ${newStatus}`);
             return response.status(200).send('Event processed');
         }catch(error){
             console.log(error);
