@@ -17,6 +17,7 @@ import ManageUsers from "./pages/users/ManageUser";
 import ProtectedRoute from "./rbac/ProtectedRoute";
 import UnauthorizedAccess from "./components/UnauthorizedAccess";
 import ManagePayments from "./pages/payments/ManagePayments";
+import AnalyticsDashboard from "./components/links/AnalyticsDashboard";
 
 function App() {
   // const [userDetails, setUserDetails]=useState(null);
@@ -152,6 +153,16 @@ function App() {
           <AppLayout>
             <Register />
           </AppLayout>
+        }
+      />
+      <Route 
+        path="/analytics/:linkId" 
+        element={
+          userDetails ?
+          <UserLayout>
+            <AnalyticsDashboard/>
+          </UserLayout> :
+          <Navigate to="/login"/>
         }
       />
     </Routes>

@@ -3,10 +3,12 @@ import { DataGrid } from "@mui/x-data-grid";
 import IconButton from "@mui/material/IconButton";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import { serverEndpoint } from "../../config";
 import axios from "axios";
 import { Modal } from "react-bootstrap";
 import { userPermissions } from "../../rbac/permissions";
+import { useNavigate } from "react-router-dom";
 
 function LinkDashboard() {
   const [errors, setErrors] = useState({});
@@ -21,6 +23,7 @@ function LinkDashboard() {
   const [isEdit, setIsEdit] = useState(false);
   const permission = userPermissions();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const navigate = useNavigate();
 
   const fetchLinks = async () => {
     try {
@@ -183,6 +186,15 @@ function LinkDashboard() {
             <IconButton>
               <DeleteIcon
                 onClick={() => handleDeleteModalShow(params.row._id)}
+              />
+            </IconButton>
+          )}
+          {permission.canViewLink && (
+            <IconButton>
+              <AssessmentIcon
+                onClick={() => {
+                    navigate(`/analytics/${params.row._id}`)
+                }}
               />
             </IconButton>
           )}
