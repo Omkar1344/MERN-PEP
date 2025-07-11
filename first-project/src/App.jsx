@@ -18,6 +18,8 @@ import ProtectedRoute from "./rbac/ProtectedRoute";
 import UnauthorizedAccess from "./components/UnauthorizedAccess";
 import ManagePayments from "./pages/payments/ManagePayments";
 import AnalyticsDashboard from "./components/links/AnalyticsDashboard";
+import { serverEndpoint } from "./config";
+import { SET_USER } from "./redux/user/actions";
 
 function App() {
   // const [userDetails, setUserDetails]=useState(null);
@@ -32,6 +34,20 @@ function App() {
   //     payload: updatedData,
   //   });
   // };
+
+  const attemptToRefreshToken = async () =>{
+    try{
+      await axios.post(`${serverEndpoint}/auth/refresh-token`,{},{
+        withCredentials:true
+      });
+      dispatch({
+        type: SET_USER,
+        payload: response.data.userDetails
+      });
+    }catch(error){
+      console.log(error);
+    }
+  }
 
   const isUserLoggedIn = async () => {
     try {
@@ -48,7 +64,12 @@ function App() {
         payload:response.data.userDetails
       });
     } catch (error) {
-      console.error("User not loggedin", error);
+      if(error.response?.status === 401){
+        console.log('Token expired, attempting to refresh');
+        await attemptToRefreshToken();
+      }else{
+        console.log('User not loggedin',error);
+      }
     }finally{
       setLoading(false);
     }

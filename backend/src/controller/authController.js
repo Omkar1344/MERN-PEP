@@ -2,8 +2,10 @@ const bcrypt=require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Users = require('../model/Users');
 const secret = "309b161a-5c19-4952-bef1-546829211287";
+const refreshSecret = process.env.JWT_REFRESH_TOKEN_SECRET;
 const {OAuth2Client} = require('google-auth-library');
 const { validationResult } = require('express-validator');
+const { default: subscriptions } = require('razorpay/dist/types/subscriptions');
 
 
 const authController = {
@@ -34,7 +36,8 @@ const authController = {
                 adminId: data.adminId,
                 credits:data.credits
             };
-            const token = jwt.sign(userDetails, process.env.JWT_SECRET, { expiresIn: '7d' });
+            const token = jwt.sign(userDetails, process.env.JWT_SECRET, { expiresIn: '1m' });
+            const refreshToken = jwt.sign(userDetails,refreshSecret,{expiresIn: '7d'});
 
             response.cookie('jwtToken', token, {
                 httpOnly: true,
@@ -42,6 +45,14 @@ const authController = {
                 domain: 'localhost',
                 path: '/'
             });
+
+            response.cookie('refreshToken',refreshToken,{
+                httpOnly: true,
+                secure: true,
+                domain: 'localhost',
+                path: '/'
+            });
+
             response.json({ message: 'User authenticated', userDetails: userDetails });
         } catch (error) {
             console.log(error);
@@ -51,6 +62,7 @@ const authController = {
 
     logout: (request, response) => {
         response.clearCookie('jwtToken');
+        response.clearCookie('refreshToken');
         response.json({ message: 'User logged out succesfully' });
     },
 
@@ -133,7 +145,9 @@ const authController = {
                 credits:data.credits
             };
 
-            const token=jwt.sign(user,process.env.JWT_SECRET,{expiresIn:'7d'});
+            const token=jwt.sign(user,process.env.JWT_SECRET,{expiresIn:'1m'});
+            const refreshToken = jwt.sign(user,refreshSecret,{expiresIn:'7h'});
+
             response.cookie('jwtToken',token,{
                 httpOnly:true,
                 secure:true,
@@ -141,10 +155,53 @@ const authController = {
                 path:'/'
             });
 
+            response.cookie('refreshToken',refreshToken,{
+                httpOnly: true,
+                secure: true,
+                domain: 'localhost',
+                path: '/'
+            });     
+
             response.json({message:'User authenticated',userDetails:user});
         }catch(error){
                 console.log(error);
                 return response.status(500).json({error: 'Internal server error'});
+        }
+    },
+
+    refreshToken: async(request,response)=>{
+        try{
+            const refreshToken = request.cookies?.refreshToken;
+            if(!refreshToken){
+                return response.status(401).json({message:'No refresh token'});
+            }
+
+            const decoded = jwt.verify(refreshToken, refreshSecret);
+            const data = await Users.findById({_id:decoded.id});
+            const user = {
+                id: data._id,
+                username: data.email,
+                name: data.name,
+                role: data.role?data.role:'admin',
+                credits:data.credits,
+                subscription: data.subscription
+            };
+
+            const newAccessToken = jwt.sign(user,secret,{expiresIn:'1m'});
+
+            response.cookie('jwtToken',newAccessToken,{
+                httpOnly: true,
+                secure: true,
+                domain: 'localhost',
+                path: '/'
+            });
+
+            response.json({message: 'Token refreshed', userDetails:user});
+        }catch(error){
+            console.log(error);
+            response.status(500).json({
+                message:"Internal server error"
+            });
         }
     }
 };
