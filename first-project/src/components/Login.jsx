@@ -152,6 +152,9 @@ function Login() {
             </button>
           </div>
         </form>
+        <div className="text-center mt-2">
+          <a href="/forget-password" className="text-decoration-none">Forgot Password?</a>
+        </div>
         <h6 className="text-center">OR</h6>
         <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
           <GoogleLogin

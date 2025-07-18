@@ -18,6 +18,8 @@ router.post('/logout',authController.logout);
 router.post('/is-user-logged-in',authController.isUserLoggedIn);
 router.post('/register',authController.register);
 router.post('/google-auth',authController.googleAuth);
-router.posy('/refresh-token',authController.refreshToken);
+router.post('/refresh-token',authController.refreshToken);
+router.post('/send-reset-password-token',authController.sendResetPasswordToken);
+router.post('/reset-password',authController.resetPassword);
 
 module.exports=router;

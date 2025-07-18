@@ -20,6 +20,8 @@ import ManagePayments from "./pages/payments/ManagePayments";
 import AnalyticsDashboard from "./components/links/AnalyticsDashboard";
 import { serverEndpoint } from "./config";
 import { SET_USER } from "./redux/user/actions";
+import ForgetPassword from './components/ForgetPassword';
+import ResetPassword from './components/ResetPassword';
 
 function App() {
   // const [userDetails, setUserDetails]=useState(null);
@@ -186,6 +188,8 @@ function App() {
           <Navigate to="/login"/>
         }
       />
+      <Route path="/forget-password" element={<ForgetPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
     </Routes>
   );
 }
